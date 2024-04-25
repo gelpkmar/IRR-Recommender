@@ -20,6 +20,13 @@ user_profile = df.groupby('user_id')[['Action', 'Adventure', 'Animation', "Child
 user_profile.fillna(0, inplace=True)
 print(user_profile.loc[4])
 
+# Min-Max normalization (values are automatically determined).
+scaler = MinMaxScaler()
+user_profile_normalized = scaler.fit_transform(user_profile)
+
+# Convert back to DataFrame
+user_profile_normalized = pd.DataFrame(user_profile_normalized, columns=user_profile.columns, index=user_profile.index)
+
 # TF-IDF vectorization
 items_df = items_df = helper.retrieve_items_data()
 

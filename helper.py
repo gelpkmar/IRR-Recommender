@@ -16,3 +16,7 @@ def retrieve_data_merged():
     merged_df_temp = pd.merge(users_df, ratings_df, on='user_id')
     merged_df = pd.merge(merged_df_temp, items_df, on='item_id', how='left')
     return merged_df
+
+def retrieve_items_data():
+    result_dfs = load_data()
+    return result_dfs[2]
