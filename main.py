@@ -1,71 +1,68 @@
-import helper
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import MinMaxScaler
+import helper, evaluate, method_01_genre, method_02_content_extended, method_03_collab_item, method_04_collab_user
 
-# Load data from CSV
-df = helper.retrieve_data_merged()
+# Global VARS
+_TEST_SET = '../movie_dataset/selected_ratings.csv'
+_USR_ID = None
+_USER_PROFILES_NORMALIZED = helper.prepare_user_profiles()
+# _USER_PROFILES_EXTENDED_NORMALIZED = helper.prepare_user_profiles(extended=True)
+_TO_RECOMMEND_DF = helper.retrieve_to_recommend_data(user_id=_USR_ID, test_set=_TEST_SET, delim=';')
+_ITEMS_DF = helper.load_data()[2]
+_ITEMS_EXTENDED_DF = helper.load_data()[3]
+_ITEMS_SIMILARITY_MATRIX = helper.prepare_item_item_similarity_index()
+_RATE_ALREADY_SEEN = True
 
-# Show all ratings for a specific user (for testing purposes only).
-print(df.loc[(df["user_id"] == 4) & (~df["rating"].isna()), ["user_id", "movie_title", "rating"]].sort_values(by="rating", ascending=False))
+# Execute Method 01 - Content-Based (Genre only) Recommendation
+recommendations, suggested_ratings = method_01_genre.recommend_movies_genre(
+    _USER_PROFILES_NORMALIZED,
+    _TO_RECOMMEND_DF,
+    _ITEMS_DF,
+    )
+# Execute Proposed Rating Evaluation
+## sorted_ratings_df = helper.retrieve_data_merged.loc[(_MERGED_DF["user_id"] == 4) & (~_MERGED_DF["rating"].isna()), ["item_id", "rating"]].sort_values(by="item_id", ascending=True)
 
+## Print evaluation conclusion MAE and RMSE scores for the above method.
+evaluate.return_evaluations(recommendations, suggested_ratings, "Method 01")
 
-# Select relevant columns for user profiles and movie genres
-user_profile = df.groupby('user_id')[['Action', 'Adventure', 'Animation', "Children's", 'Comedy',
-                                      'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir',
-                                      'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller',
-                                      'War', 'Western']].mean()
+## Export results to .csv
+helper.export_results(recommendations, suggested_ratings, "method_01.csv")
 
-# Convert NaN values to 0
-user_profile.fillna(0, inplace=True)
-print(user_profile.loc[4])
+# # Execute Method 02 - Content-Based (extended movie data) Recommendation
+# recommendations, suggested_ratings = method_02_content_extended.recommend_movies_extended(
+#     _USER_PROFILES_EXTENDED_NORMALIZED,
+#     _TO_RECOMMEND_DF,
+#     _ITEMS_EXTENDED_DF,
+#     )
+# # Execute Proposed Rating Evaluation
+# ## sorted_ratings_df = helper.retrieve_data_merged.loc[(_MERGED_DF["user_id"] == 4) & (~_MERGED_DF["rating"].isna()), ["item_id", "rating"]].sort_values(by="item_id", ascending=True)
 
-# Min-Max normalization (values are automatically determined).
-scaler = MinMaxScaler()
-user_profile_normalized = scaler.fit_transform(user_profile)
+# ## Print evaluation conclusion MAE and RMSE scores for the above method.
+# evaluate.return_evaluations(recommendations, suggested_ratings, "Method 02")
 
-# Convert back to DataFrame
-user_profile_normalized = pd.DataFrame(user_profile_normalized, columns=user_profile.columns, index=user_profile.index)
+## Export results to .csv
+helper.export_results(recommendations, suggested_ratings, "method_02.csv")
 
-# TF-IDF vectorization
-items_df = items_df = helper.retrieve_items_data()
+# Execute Method 03 - Item-based collaborative Filtering Recommender
+recommendations, suggested_ratings = method_03_collab_item.recommend_item_based_collaborative_filtering(
+    _ITEMS_SIMILARITY_MATRIX,
+    _TO_RECOMMEND_DF,
+    _ITEMS_DF
+    )
 
-def recommend_movies(user_id, top_n=1682):
-    # Get the user's profile
-    user_profile_vec = user_profile.loc[user_id].values.reshape(1, -1)
-    
-    # Compute cosine similarity between the user's profile and all movies based on genre
-    cosine_similarities = cosine_similarity(user_profile_vec, items_df[['Action', 'Adventure', 'Animation', "Children's", 'Comedy',
-                                                                  'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir',
-                                                                  'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller',
-                                                                  'War', 'Western']].values)
-    
-    print("all similartities", cosine_similarities[0][0])
-    
-    # Get indices of movies sorted by similarity score
-    similar_movie_indices_enum = enumerate(cosine_similarities[0], start = 1)  # Start enumeration from index 0
-    
-    # Exclude movies the user has already rated
-    rated_movies = df.loc[df['user_id'] == user_id, 'item_id'].values
-    
-    recommendations = []
-    for movie_index, similarity_score in similar_movie_indices_enum:
-        original_movie_index = movie_index  # Adjust movie index to align with original .csv row numbers
-        if original_movie_index in rated_movies:
-            movie_title = items_df.loc[original_movie_index-1, 'movie_title']
-            recommendations.append((original_movie_index, movie_title, similarity_score))
-            
-            if len(recommendations) == top_n:
-                break
+## Print evaluation conclusion MAE and RMSE scores for the above method.
+evaluate.return_evaluations(recommendations, suggested_ratings, "Method 03")
 
-    sorted_recommendations = sorted(recommendations, key=lambda x: x[-1], reverse=True)
-    
-    return sorted_recommendations
+## Export results to .csv
+helper.export_results(recommendations, suggested_ratings, "method_03.csv")
 
-# Example: Recommend movies for user 1
-user_id = 4
-recommendations = recommend_movies(user_id)
+# Execute Method 04 - User-based collaborative Filtering Recommender
+recommendations, suggested_ratings = method_04_collab_user.recommend_user_based_collaborative_filtering(
+    _TO_RECOMMEND_DF,
+    _ITEMS_DF,
+    _RATE_ALREADY_SEEN
+    )
 
-print(f"Top 5 movie recommendations for user {user_id}:")
-for movie_index, movie, score in recommendations:
-    print(f"{movie_index} {movie}: Similarity score = {score:.2f}")
+## Print evaluation conclusion MAE and RMSE scores for the above method.
+evaluate.return_evaluations(recommendations, suggested_ratings, "Method 04")
+
+## Export results to .csv
+helper.export_results(recommendations, suggested_ratings, "method_04.csv")

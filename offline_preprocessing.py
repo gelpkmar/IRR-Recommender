@@ -74,4 +74,16 @@ preprocess_text_files('../movie_dataset/', 'u.ratings', header, ';')
 header = '\t'.join(['item_id', 'movie_title', 'release_date', 'video_release_date', 'IMDb_URL', 'unknown', 'Action', 'Adventure', 'Animation', "Children's", 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western'])
 preprocess_text_files('../movie_dataset/', 'u.item', header, ';')
 
+
+# Creation of TestSet to evaluate recommendation engine performance
+ratings_df = pd.read_csv('../movie_dataset/u.ratings.csv', delimiter=';')
+
+selected_columns_df = ratings_df[['user_id', 'item_id']].head(2000)
+
+# Write the DataFrame to a new CSV file with the specified delimiter
+selected_columns_df.to_csv('../movie_dataset/selected_ratings.csv', sep=';', index=False)
+
+
+
+
 print("Preprocessing complete.")
