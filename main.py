@@ -4,7 +4,7 @@ import helper, evaluate, method_01_genre, method_02_content_extended, method_03_
 _TEST_SET = '../movie_dataset/selected_ratings.csv'
 _USR_ID = None
 _USER_PROFILES_NORMALIZED = helper.prepare_user_profiles()
-# _USER_PROFILES_EXTENDED_NORMALIZED = helper.prepare_user_profiles(extended=True)
+_USER_PROFILES_EXTENDED_NORMALIZED = helper.prepare_user_profiles(extended=True)
 _TO_RECOMMEND_DF = helper.retrieve_to_recommend_data(user_id=_USR_ID, test_set=_TEST_SET, delim=';')
 _ITEMS_DF = helper.load_data()[2]
 _ITEMS_EXTENDED_DF = helper.load_data()[3]
@@ -26,19 +26,19 @@ evaluate.return_evaluations(recommendations, suggested_ratings, "Method 01")
 ## Export results to .csv
 helper.export_results(recommendations, suggested_ratings, "method_01.csv")
 
-# # Execute Method 02 - Content-Based (extended movie data) Recommendation
-# recommendations, suggested_ratings = method_02_content_extended.recommend_movies_extended(
-#     _USER_PROFILES_EXTENDED_NORMALIZED,
-#     _TO_RECOMMEND_DF,
-#     _ITEMS_EXTENDED_DF,
-#     )
-# # Execute Proposed Rating Evaluation
-# ## sorted_ratings_df = helper.retrieve_data_merged.loc[(_MERGED_DF["user_id"] == 4) & (~_MERGED_DF["rating"].isna()), ["item_id", "rating"]].sort_values(by="item_id", ascending=True)
+# Execute Method 02 - Content-Based (extended movie data) Recommendation
+recommendations, suggested_ratings = method_02_content_extended.recommend_movies_extended(
+    _USER_PROFILES_EXTENDED_NORMALIZED,
+    _TO_RECOMMEND_DF,
+    _ITEMS_EXTENDED_DF,
+    )
+# Execute Proposed Rating Evaluation
+# sorted_ratings_df = helper.retrieve_data_merged.loc[(_MERGED_DF["user_id"] == 4) & (~_MERGED_DF["rating"].isna()), ["item_id", "rating"]].sort_values(by="item_id", ascending=True)
 
-# ## Print evaluation conclusion MAE and RMSE scores for the above method.
-# evaluate.return_evaluations(recommendations, suggested_ratings, "Method 02")
+# Print evaluation conclusion MAE and RMSE scores for the above method.
+evaluate.return_evaluations(recommendations, suggested_ratings, "Method 02")
 
-## Export results to .csv
+# Export results to .csv
 helper.export_results(recommendations, suggested_ratings, "method_02.csv")
 
 # Execute Method 03 - Item-based collaborative Filtering Recommender

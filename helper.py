@@ -1,13 +1,9 @@
+import nltk, string
 import pandas as pd
-import numpy as np
 from itertools import product
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-import nltk
+from sklearn.preprocessing import MinMaxScaler
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -64,22 +60,14 @@ def preprocess(text):
         # Lemmatize tokens
         lemmatizer = WordNetLemmatizer()
         lemmatized_tokens = [lemmatizer.lemmatize(word) for word in filtered_tokens]
-        return lemmatized_tokens
+        cleaned_tokens = [token for token in lemmatized_tokens if token not in string.punctuation]
+        return cleaned_tokens
     else:
         return []
 
 def prepare_user_profiles(extended=False):
     # Load data from CSV
     df = retrieve_data_merged()
-
-    # Show all ratings for a specific user (for testing purposes only).
-    # print(df.loc[(df["user_id"] == 4) & (~df["rating"].isna()), ["user_id", "movie_title", "rating"]].sort_values(by="rating", ascending=False))
-
-    # Select relevant columns for user profiles and movie genres
-    # user_profile = df.groupby('user_id')[['Action', 'Adventure', 'Animation', "Children's", 'Comedy',
-    #                                     'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir',
-    #                                     'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller',
-    #                                     'War', 'Western']].mean()
 
     rating_weights = {1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0}
 
@@ -88,11 +76,11 @@ def prepare_user_profiles(extended=False):
                             'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir',
                             'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller',
                             'War', 'Western']]
-    numerical_features_normalized = (numerical_features - numerical_features.min()) / (numerical_features.max() - numerical_features.min())
-
-
+    
     # Convert NaN values to 0
-    numerical_features.fillna(0, inplace=True)
+    numerical_features.fillna(0)
+
+    numerical_features_normalized = (numerical_features - numerical_features.min()) / (numerical_features.max() - numerical_features.min())
 
     # Calculate weighted average of numerical features for each user
     weighted_numerical_features = numerical_features_normalized.mul(df['rating'].map(rating_weights), axis=0)
@@ -101,23 +89,20 @@ def prepare_user_profiles(extended=False):
     if extended:
         # Initialize the WordNetLemmatizer
         # Combine numerical, text, and categorical features
-        # user_profile_summary = df.groupby('user_id')['Summary'].apply(lambda x: ' '.join(x) if isinstance(x.dropna().iloc[0], str) else '')
-        # user_profile_summary = df.groupby('user_id')['Summary'].apply(lambda x: ' '.join(str(val) for val in x if isinstance(val, str)))
-        # user_profile_summary = df.groupby('user_id')['Summary'].apply(lambda x: [lemmatizer.lemmatize(word.lower()) for word in word_tokenize(str(x)) if word.isalnum()])
         processed_summaries = df.groupby('user_id')['Summary'].apply(lambda x: x.apply(preprocess))
+        processed_summaries.fillna(0)
 
-        # Convert the resulting Series of lists to a single list of lemmatized tokens
-        # user_profile_summary = user_profile_summary.tolist()    
-        # user_profile_cast = df.groupby('user_id')['Cast'].apply(lambda x: ' '.join(x))
-        # user_profile_director = df.groupby('user_id')['Director'].apply(lambda x: ' '.join(x))
+        print(processed_summaries[11])
+
+        user_profile_numerical.reset_index(drop=True, inplace=True)
+        processed_summaries.reset_index(drop=True, inplace=True)
 
         user_profile = pd.concat([user_profile_numerical, processed_summaries], axis=1)
 
-        # user_profile = pd.concat([user_profile_numerical, user_profile_summary, user_profile_cast, user_profile_director], axis=1)
+        print(user_profile.loc[11])
 
         return user_profile
 
-    # print(user_profile.loc[4])
 
     # Min-Max normalization (values are automatically determined)
     scaler = MinMaxScaler()
