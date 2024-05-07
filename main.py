@@ -2,10 +2,10 @@ import helper, evaluate, method_01_genre, method_02_content_extended, method_03_
 
 # Global VARS
 _TEST_SET = '../movie_dataset/selected_ratings.csv'
-_USR_ID = None
+# _TEST_SET = '../movie_dataset/test.csv'
 _USER_PROFILES_NORMALIZED = helper.prepare_user_profiles()
 _USER_PROFILES_EXTENDED_NORMALIZED = helper.prepare_user_profiles(extended=True)
-_TO_RECOMMEND_DF = helper.retrieve_to_recommend_data(user_id=_USR_ID, test_set=_TEST_SET, delim=';')
+_TO_RECOMMEND_DF = helper.retrieve_to_recommend_data(test_set=_TEST_SET, delim=',')
 _ITEMS_DF = helper.load_data()[2]
 _ITEMS_EXTENDED_DF = helper.load_data()[3]
 _ITEMS_SIMILARITY_MATRIX = helper.prepare_item_item_similarity_index()

@@ -29,6 +29,15 @@ def preprocess_text_files(directory, file, header, delimeter):
             with open(os.path.join(directory, new_filename), 'w') as file:
                 file.write(content)
 
+def create_test_set(source_file, destination_file, delim):
+    # Creation of TestSet to evaluate recommendation engine performance
+    ratings_df = pd.read_csv(source_file, delimiter=delim)
+
+    selected_columns_df = ratings_df[['user_id', 'item_id']].head(2000)
+
+    # Write the DataFrame to a new CSV file with the specified delimiter
+    selected_columns_df.to_csv(destination_file, sep=delim, index=False)
+
 # Function calls to preprocess the text files
 ## Preprocess u.user
 header = '\t'.join(['user_id', 'age', 'gender', 'occupation', 'zip_code'])
@@ -43,13 +52,7 @@ header = '\t'.join(['item_id', 'movie_title', 'release_date', 'video_release_dat
 preprocess_text_files('../movie_dataset/', 'u.item', header, ';')
 
 
-# Creation of TestSet to evaluate recommendation engine performance
-ratings_df = pd.read_csv('../movie_dataset/u.ratings.csv', delimiter=';')
-
-selected_columns_df = ratings_df[['user_id', 'item_id']].head(2000)
-
-# Write the DataFrame to a new CSV file with the specified delimiter
-selected_columns_df.to_csv('../movie_dataset/selected_ratings.csv', sep=';', index=False)
+create_test_set('../movie_dataset/u.ratings.csv', '../movie_dataset/selected_ratings.csv', ";")
 
 
 

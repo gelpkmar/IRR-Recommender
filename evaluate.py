@@ -27,15 +27,20 @@ def return_evaluations(recommendations, suggested_ratings, method_name):
         else:
             pass
 
+    if len(actual_ratings_list) > 0:
 
-    print(f"""
-{method_name}:
-#########################
-#                       #
-#       Evaluation      #
-#                       #
-#########################
-""")
-    print(f"Mean Absolute Error (MAE): {calculate_mae(actual_ratings_list, pred_ratings_list):.2f}")
-    print(f"Mean Squared Error (MSE): {calculate_mse(actual_ratings_list, pred_ratings_list):.2f}")
-    print(f"Root Mean Squared Error (RMSE): {np.sqrt(calculate_mse(actual_ratings_list, pred_ratings_list)):.2f}")
+
+        print(f"""
+        {method_name}:
+        #########################
+        #                       #
+        #       Evaluation      #
+        #                       #
+        #########################
+        """)
+        print(f"Mean Absolute Error (MAE): {calculate_mae(actual_ratings_list, pred_ratings_list):.2f}")
+        print(f"Mean Squared Error (MSE): {calculate_mse(actual_ratings_list, pred_ratings_list):.2f}")
+        print(f"Root Mean Squared Error (RMSE): {np.sqrt(calculate_mse(actual_ratings_list, pred_ratings_list)):.2f}")
+
+    else:
+        print(f"No evaluation possible for {method_name}. Probably missing reference values.")

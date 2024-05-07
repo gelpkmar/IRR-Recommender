@@ -52,7 +52,7 @@ Model-Based Recommendation:
 """)
 
 print(f"Mean Absolute Error (MAE): {mae:.2f}")
-print(f"Mean Squared Error (RMSE): {mse:.2f}")
+print(f"Mean Squared Error (MSE): {mse:.2f}")
 print(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
 
 # Recommendation Generation

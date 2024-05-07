@@ -32,20 +32,15 @@ def retrieve_data_merged():
     # print(merged_df)
     return merged_df
 
-def retrieve_to_recommend_data(user_id=None, test_set=None, recommend_already_rated=False, delim=','):
-    merged_df = retrieve_data_merged()
-    # print(merged_df.loc[(merged_df["user_id"] == 4) & (~merged_df["rating"].isna()), ["item_id", "rating"]].sort_values(by="item_id", ascending=True))
-    data = load_data()
+def retrieve_to_recommend_data(user_id=None, test_set=None, delim=','):
     result_df = pd.DataFrame()
-    if user_id != None:
-        result_df = data[2]
-        result_df['user_id'] = user_id
-    elif test_set != None:
+    if test_set != None:
         result_df = pd.read_csv(test_set, delimiter = delim)
     else:
-        result_df = pd.DataFrame(list(product(data[0]['user_id'][:5], data[2]['item_id'][:100])), columns=['user_id', 'item_id'])
-    # if not recommend_already_rated:
-    #     for index, row in data[1].iterrows():
+        print("""No test set chosen! 
+              Please provide a .csv file in the main.py global var '_TEST_SET' 
+              containing user-item pairs to compute the recommended ratings.
+              """)
 
     return result_df
 
@@ -80,10 +75,8 @@ def prepare_user_profiles(extended=False):
     # Convert NaN values to 0
     numerical_features.fillna(0)
 
-    numerical_features_normalized = (numerical_features - numerical_features.min()) / (numerical_features.max() - numerical_features.min())
-
     # Calculate weighted average of numerical features for each user
-    weighted_numerical_features = numerical_features_normalized.mul(df['rating'].map(rating_weights), axis=0)
+    weighted_numerical_features = numerical_features.mul(df['rating'].map(rating_weights), axis=0)
     user_profile_numerical = weighted_numerical_features.groupby(df['user_id']).mean()
     
     if extended:
@@ -108,19 +101,10 @@ def prepare_user_profiles(extended=False):
 
         return user_profile
 
-
-    # Min-Max normalization (values are automatically determined)
-    scaler = MinMaxScaler()
-    user_profile_normalized = scaler.fit_transform(user_profile_numerical)
-
-    # Convert back to DataFrame
-    user_profile_normalized = pd.DataFrame(user_profile_normalized, columns=user_profile_numerical.columns, index=user_profile_numerical.index)
-    
-    return user_profile_normalized
+    return user_profile_numerical
 
 def map_similarity_to_rating(similarity_value):
-    # Scale the similarity value from -1 to 1 to the range 1 to 5
-    # using linear mapping
+    # Scale the similarity value from 0 to 1 to the range 1 to 5 using linear mapping
     min_similarity = 0
     max_similarity = 1
     min_rating = 1
@@ -128,14 +112,13 @@ def map_similarity_to_rating(similarity_value):
 
     # Calculate the mapped rating
     mapped_rating = min_rating + (max_rating - min_rating) * (similarity_value - min_similarity) / (max_similarity - min_similarity)
-    # mapped_rating = min_rating + ((max_rating - min_rating) * similarity_value)
     return round(mapped_rating)
 
 def prepare_item_item_similarity_index():
-    # Step 1: Load data from CSV
+    # Load data from CSV
     movie_data = load_data()[3]
 
-    # Step 2: Select relevant features
+    # Select relevant features
     genre_features = movie_data[['unknown', 'Action', 'Adventure', 'Animation', "Children's", 'Comedy',
                                 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir',
                                 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller',
@@ -146,7 +129,7 @@ def prepare_item_item_similarity_index():
     cast_features = movie_data['Cast']
 
 
-    # Step 3: Normalize the data (if necessary)
+    # Normalize the data (if necessary)
     # Normalize genre features using StandardScaler
     scaler = MinMaxScaler()
     normalized_genre_features = scaler.fit_transform(genre_features)
@@ -159,20 +142,18 @@ def prepare_item_item_similarity_index():
     # Process textual information using TF-IDF vectorization
     vectorizer = TfidfVectorizer(stop_words='english')
     summary_matrix = vectorizer.fit_transform(summary_features)
-    # summary_matrix_dense = summary_matrix.toarray()
     cast_matrix = vectorizer.fit_transform(cast_features)
     director_matrix = vectorizer.fit_transform(director_features)
 
-    # Step 4: Calculate similarity based on genre profile
+    # Calculate similarity based on genre profile
     genre_similarity_matrix = cosine_similarity(normalized_genre_features)
 
-    # Step 5: Calculate similarity based on textual information
+    # Calculate similarity based on textual information
     textual_summary_similarity_matrix = cosine_similarity(summary_matrix)
     textual_cast_similarity_matrix = cosine_similarity(cast_matrix)
     textual_director_similarity_matrix = cosine_similarity(director_matrix)
-    # textual_summary_similarity_matrix = pairwise_distances(summary_matrix_dense, metric='jaccard')
 
-    # Step 6: Combine similarity scores
+    # Combine similarity scores
     combined_similarity_matrix = 0.25 * genre_similarity_matrix + 0.25 * textual_summary_similarity_matrix + 0.25 * textual_cast_similarity_matrix + 0.25 * textual_director_similarity_matrix
 
     return combined_similarity_matrix
