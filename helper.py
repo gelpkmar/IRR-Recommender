@@ -92,14 +92,19 @@ def prepare_user_profiles(extended=False):
         processed_summaries = df.groupby('user_id')['Summary'].apply(lambda x: x.apply(preprocess))
         processed_summaries.fillna(0)
 
-        print(processed_summaries[11])
+        processed_cast = df.groupby('user_id')['Cast'].apply(lambda x: x.apply(preprocess))
+        processed_cast.fillna(0)
+
+        processed_director = df.groupby('user_id')['Director'].apply(lambda x: x.apply(preprocess))
+        processed_director.fillna(0)
 
         user_profile_numerical.reset_index(drop=True, inplace=True)
         processed_summaries.reset_index(drop=True, inplace=True)
+        processed_cast.reset_index(drop=True, inplace=True)
+        processed_director.reset_index(drop=True, inplace=True)
 
-        user_profile = pd.concat([user_profile_numerical, processed_summaries], axis=1)
+        user_profile = pd.concat([user_profile_numerical, processed_summaries, processed_cast, processed_director], axis=1)
 
-        print(user_profile.loc[11])
 
         return user_profile
 

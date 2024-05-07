@@ -1,5 +1,6 @@
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import math, helper
+import numpy as np
 
 # Calculate MAE
 def calculate_mae(actual_ratings, predicted_ratings):
@@ -7,7 +8,7 @@ def calculate_mae(actual_ratings, predicted_ratings):
     return mae
 
 # Calculate RMSE
-def calculate_rmse(actual_ratings, predicted_ratings):
+def calculate_mse(actual_ratings, predicted_ratings):
     rmse = math.sqrt(mean_squared_error(actual_ratings, predicted_ratings))
     return rmse
 
@@ -36,4 +37,5 @@ def return_evaluations(recommendations, suggested_ratings, method_name):
 #########################
 """)
     print(f"Mean Absolute Error (MAE): {calculate_mae(actual_ratings_list, pred_ratings_list):.2f}")
-    print(f"Root Mean Squared Error (RMSE): {calculate_rmse(actual_ratings_list, pred_ratings_list):.2f}")
+    print(f"Mean Squared Error (MSE): {calculate_mse(actual_ratings_list, pred_ratings_list):.2f}")
+    print(f"Root Mean Squared Error (RMSE): {np.sqrt(calculate_mse(actual_ratings_list, pred_ratings_list)):.2f}")

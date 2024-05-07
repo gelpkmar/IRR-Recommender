@@ -2,38 +2,6 @@ import pandas as pd
 import os, csv
 import re
 
-def find_urls(text):
-    url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    return re.findall(url_pattern, text)
-
-def quote_urls(new_filename):
-    with open(new_filename, 'r', newline='', encoding='utf-8') as input_file, \
-        open("../movie_dataset/u.item_new.csv", 'w', newline='', encoding='utf-8') as output_file:
-
-        # Initialize CSV reader and writer
-        csv_reader = csv.reader(input_file)
-        csv_writer = csv.writer(output_file, quoting=csv.QUOTE_ALL)
-
-        # Process each row in the input CSV file
-        for row in csv_reader:
-            # Initialize a list to store modified row data
-            modified_row = []
-
-            # Iterate through each cell in the row
-            for cell in row:
-                # Find URLs in the cell
-                urls = find_urls(cell)
-
-                # If URLs are found, quote the entire cell content
-                if urls:
-                    cell = f'"{cell}"'
-
-                # Append the modified cell to the modified row list
-                modified_row.append(cell)
-
-            # Write the modified row to the output CSV file
-            csv_writer.writerow(modified_row)
-
 def preprocess_text_files(directory, file, header, delimeter):
     for filename in os.listdir(directory):
         if filename == file:

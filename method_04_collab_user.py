@@ -18,6 +18,7 @@ def recommend_user_based_collaborative_filtering(to_recommend_df, items_df, rate
 
         user_movie_ratings = merged_df.pivot_table(index='user_id', columns='item_id', values='rating').fillna(0)
         user_specific_ratings_data = user_movie_ratings.loc[user_id]
+        
         # Initialize and fit Nearest Neighbors model
         k = 20  # Number of neighbors to consider
         nn_model = NearestNeighbors(metric='cosine', algorithm='brute')

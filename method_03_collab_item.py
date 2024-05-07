@@ -20,7 +20,6 @@ def recommend_item_based_collaborative_filtering(items_similarity_matrix, to_rec
         for rated_item in rated_items_ids:
             # Accumulate similarity scores multiplied with rating of the similar item
             # (e.g., if an item is very similar to another item that was rated with a score of 5, its similarity value is multiplied by 5).
-            # print(merged_df.loc[(merged_df['user_id'] == user_id) & (merged_df['item_id'] == rated_item), 'rating'].values[0])
             item_similarity_score += (items_similarity_matrix[rated_item][item_id] * merged_df.loc[(merged_df['user_id'] == user_id) & (merged_df['item_id'] == rated_item), 'rating'].values)
         
         # Calculate average similarity score
