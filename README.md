@@ -19,10 +19,10 @@ The submission to this project contains the following files:
     └── IRR_assignment02_approach.pdf
 ````
 
+>The submission contains `method_0x.csv` files per method (1-4). These files were produced using the first 2000 rows of the `test.csv` file. For the evaluation, the first 2000 rows of `u.ratings.csv` was used (see chapter 3.2).
+
 ## 1. Introduction
 This document describes the approach and setup of the Movie Recommender System that was developed in scope of assignment 02 of the University of Zurich Computer Science course "Introduction to Retrieval and Recommendation".
-
-The exact requirements for this task can be accessed for authorized users at the following link: [Exercise 2 Movie Recommender System.pdf](https://lms.uzh.ch/auth/1%3A1%3A1067538524%3A2%3A0%3Aserv%3Ax%3A_csrf%3Af0459af1-67aa-4665-876d-2d149b5cdae1/Exercise%202%20Movie%20Recommender%20System.pdf).
 
 The following materials were supplied to us:
 - 5 documents in .csv format providing information about movies, users and users' ratings of movies.
@@ -30,7 +30,6 @@ The following materials were supplied to us:
 - items.csv: Detailed information on movies incl. link to IMDB database and movie summary, cast, etc.
 
 The goal was to follow the instructions and provide a solution in code for the following recommendation methods:
-
 1. Content-based recommender algorithm based on movie genre
 2. Content-based recommender algorithm based on more information than just movie genre
 3. Item-based collaborative filtering recommender algorithm
@@ -47,21 +46,21 @@ The technical execution of this project relies heavily on the following third pa
 - NLTK - all natural language processing (e.g., tokenization, lemmatization, calculation of similarity, etc.)
 
 The project is spread over nine different Python files. A quick overview and explanation of the different files:
-- `method_##_xyz.py` files: Files used to implement the individual solutions fo the methods outlined in chapter 1.
-- `method_x_model_based.py`: ML-based algorithm to evaluate the manually implemented methode 01-04.
-- `main.py`: Definition of global variables and main file to import all others.
+- `method_##_xyz.py` files: Files used to implement the individual solutions fo the methods (01-04) as outlined in chapter 1.
+- `method_x_model_based.py`: ML-based algorithm to evaluate the manually implemented methods.
+- `main.py`: Definition of global variables and main file to import all others and execute the four recommendation methods.
 - `helper.py`: Definition of helper functions ranging from loading of pandas data frames over text preprocessing to preparation of user profiles.
 - `evaluate.py`: Program to evaluate the calculated movie ratings.
-- `offline_preprocessing.py`: Script used to run the preprocessing functions to create the inverse document index to facilitate the simple full-text-search.
+- `offline_preprocessing.py`: Script used to run the preprocessing functions to generate the input data required for the individual recommendation methods.
 
 ### 2.2 Recommendation Methods
-Below the overview of a query process can be seen in a flow diagram. The steps in the individual methods are numbered and explained in more detail beneath the flow diagram incl. important technical design decisions.
+Below the overview of a query process can be seen in a flow diagram. The steps in the individual methods are explained in more detail beneath the flow diagram incl. important technical design decisions.
 
-<img src="data/IRR02_Pipeline.drawio.png" alt="IRR02 Pipeline" width="60%">
+<img src="data/IRR02_Pipeline.drawio.png" alt="IRR02 Pipeline" width="50%">
 
 >Some performed actions in the code are considered trivial and therefore either not explained or not explained extensively.
 
->Similarity values were calculated using Cosine Similarity only to make them comparable and due to the fact that it returned the most stable results and the time restriction of this project prevented a more thorough study / conparison of other similarity functions use in code.
+>Similarity values were calculated using Cosine Similarity only to make them comparable and due to the fact that it returned the most stable results and the time restriction of this project prevented a more thorough study / comparison of other similarity functions use in code.
 
 #### 2.2.0 Preprocessing and preparation
 This stage fulfills a crucial role in preprocessing and preparing the available data so it can be used by the individual recommendation methods (1-4) described below.
@@ -175,6 +174,8 @@ The `main.py` file defines the most important environment variables that can be 
 - `_ITEMS_SIMILARITY_MATRIX`: Function call to create item-item matrix (only added for future extensibility)
 - `_RATE_ALREADY_SEEN`: Either `True` or `False` to define whether already-rated items shall be rated again (for testing purposes).
 
+The program can be called from within the project folder with the following command: `python main.py`
+
 >Additionally, after each execution of a recommendation method, a call to an evaluation method is done (see code below). This line will not return an evaluation if for the recommended user-movie pair, no rating can be found in `u.ratings.csv`. Instead a warning is issued. This could be improved in the future.
 
 ### 3.2 Evaluation of algorithm performance
@@ -191,7 +192,7 @@ The mapping is done with the following formula:
 mapped_rating = min_rating + (max_rating - min_rating) * (similarity_value - min_similarity) / (max_similarity - min_similarity)
 ```
 
-#### 3.2.1 Performance Metrics and Outcome
+#### 3.2.2 Performance Metrics and Outcome
 >Code to be found in `evaluate.py`
 
 With the similarity value mapped to a rating from 1 to 5, the algorithm performance can be calculated using a subset of the available `u.ratings.csv` file (the first 2000 rows).
@@ -215,18 +216,17 @@ The results are as follows:
     - Mean Squared Error (MSE): 2.08
     - Root Mean Squared Error (RMSE): 1.44
 
-Judging from the above results, it seems that the simple genre-based method is the most reliable and correct. It seems that adding additional information, such as movie summary, cast, and director doesn't improve similarity ratings, but rather the opposite. This could have multiple causes, and would have to be analyzed / improved further.
+Judging from the above results, it seems that the simple genre-based method is the most reliable and correct compared to the other methods. It seems that adding additional information, such as movie summary, cast, and director doesn't improve similarity ratings, but rather the opposite. This could have multiple causes, and would have to be analyzed / improved further.
 
 Out of curiosity and for further evaluation a model-based method was implemented (see `method_x_model_based.py`). In this example, scikit-learns `RandomForestRegressor` model was used to evaluate the performance with the following outcome:
 - Mean Absolute Error (MAE): 0.82
 - Mean Squared Error (RMSE): 1.06
 - Root Mean Squared Error (RMSE): 1.03
 
-To conclude, 
+The model-based solution therefore also possesses a considerable error rate.
 
 ## 4 Known Bugs
-
 ### 4.1 Method 2
-When running method 2 on the whole test set defined in `test.csv`, an error is thrown at item 9420/9430: `ValueError: Input contains NaN.`
+When running method 2 on the whole test set defined in `test.csv`, an error is thrown at item 9420/9430: `ValueError: Input contains NaN.`. A solution was not found within the timeline of this project.
 
 

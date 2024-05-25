@@ -2,7 +2,7 @@ import helper, evaluate, method_01_genre, method_02_content_extended, method_03_
 
 # Global VARS
 _TEST_SET = '../movie_dataset/selected_ratings.csv'
-# _TEST_SET = '../movie_dataset/test.csv'
+_TEST_SET = '../movie_dataset/test.csv'
 _USER_PROFILES_NORMALIZED = helper.prepare_user_profiles()
 _USER_PROFILES_EXTENDED_NORMALIZED = helper.prepare_user_profiles(extended=True)
 _TO_RECOMMEND_DF = helper.retrieve_to_recommend_data(test_set=_TEST_SET, delim=',')

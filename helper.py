@@ -42,7 +42,7 @@ def retrieve_to_recommend_data(user_id=None, test_set=None, delim=','):
               containing user-item pairs to compute the recommended ratings.
               """)
 
-    return result_df
+    return result_df[:2000]
 
 def preprocess(text):
     if isinstance(text, str):

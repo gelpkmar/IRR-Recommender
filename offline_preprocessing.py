@@ -51,7 +51,17 @@ preprocess_text_files('../movie_dataset/', 'u.ratings', header, ';')
 header = '\t'.join(['item_id', 'movie_title', 'release_date', 'video_release_date', 'IMDb_URL', 'unknown', 'Action', 'Adventure', 'Animation', "Children's", 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western'])
 preprocess_text_files('../movie_dataset/', 'u.item', header, ';')
 
+## Preprocess items.csv
+header = ['item_id','movie_title','release date','video release date','IMDb URL','unknown','Action','Adventure','Animation',"Children's",'Comedy','Crime','Documentary','Drama','Fantasy','Film-Noir','Horror','Musical','Mystery','Romance','Sci-Fi','Thriller','War','Western','Summary','Cast','Director','Rating','Runtime','No. of ratings','YT-Trailer ID']
+### Load the CSV file
+df = pd.read_csv('../movie_dataset/items.csv')
+### Change the header row to the custom line
+df.columns = header
+### Save back to .csv
+df.to_csv('../movie_dataset/items.csv', index=False)
 
+
+## Create Test Set
 create_test_set('../movie_dataset/u.ratings.csv', '../movie_dataset/selected_ratings.csv', ";")
 
 
